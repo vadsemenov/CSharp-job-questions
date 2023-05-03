@@ -554,12 +554,128 @@ Select-Order by).</summary>
 
 <details><summary>Многопоточность Вопрос 8. Что такое DeadLock.</summary>
 
+>Вот пример упрощенного deadlock на C#:
+```csharp
+using System;
+using System.Threading;
+
+class DeadlockExample
+{
+    static void Main()
+    {
+        object lock1 = new object();
+        object lock2 = new object();
+
+        new Thread(() =>
+        {
+            lock (lock1)
+            {
+                Console.WriteLine("Thread 1 acquired lock1");
+                Thread.Sleep(1000);
+
+                lock (lock2)
+                {
+                    Console.WriteLine("Thread 1 acquired lock2");
+                }
+            }
+        }).Start();
+
+        // Второй поток захватывает lock2, затем lock1 
+        new Thread(() =>
+        {
+            lock (lock2)
+            {
+                Console.WriteLine("Thread 2 acquired lock2");
+                Thread.Sleep(1000);
+
+                lock (lock1)
+                {
+                    Console.WriteLine("Thread 2 acquired lock1");
+                }
+            }
+        }).Start();
+
+        Console.ReadKey();
+    }
+}
+```
 >
+>Этот код создает два объекта блокировки `lock1` и `lock2` и создает два потока, каждый из которых пытается захватить эти объекты блокировки в определенном порядке. 
+>
+>Первый поток захватывает `lock1`, затем `lock2`, тогда как второй поток захватывает `lock2`, затем `lock1`. Это приводит к взаимоблокировке (deadlock), так как каждый поток ждет освобождения объекта блокировки, который удерживает другой поток. 
+>
+>Когда этот код выполняется, он приводит к замерзанию программы, так как оба потока застряли в бесконечном ожидании освобождения объекта блокировки. Чтобы исправить эту проблему, нужно перестроить логику потоков таким образом, чтобы они захватывали объекты блокировки в том же порядке.
 >
 </details>
 
 <details><summary>Многопоточность Вопрос 8. Что такое Race Condition.</summary>
 
+>Ниже приведен пример упрощенного Race Condition на C#:
+```csharp
+using System;
+using System.Threading;
+
+class Program
+{
+    static int count = 0;
+
+    static void Main(string[] args)
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            Thread thread = new Thread(IncrementCount);
+            thread.Start();
+        }
+
+        Console.ReadLine();
+    }
+
+    static void IncrementCount()
+    {
+        for (int i = 0; i < 100000; i++)
+        {
+            count++;
+        }
+        Console.WriteLine("Count = {0}", count);
+    }
+}
+```
+>В этом примере создаются 10 потоков, каждый из которых инкрементирует глобальную переменную "count" 100000 раз. Из-за Race Condition результат выполнения этой программы будет непредсказуемым, поскольку два или более потоков могут попытаться изменить значение переменной "count" одновременно.
 >
+>Для предотвращения такой ситуации можно использовать механизмы синхронизации, такие как блокировки или мониторы, чтобы гарантировать, что только один поток имеет доступ к переменной "count" в любой момент времени.
 >
 </details>
+
+<details><summary>Многопоточность Вопрос 9. Как реализовать паттерн Singleton для многопоточного использования.</summary>
+ 
+ >Если требуется дополнительно обеспечить потокобезопасность в паттерне Singleton, можно использовать блокировку (lock) при создании экземпляра:
+```csharp
+public sealed class Singleton
+{
+    private static Singleton instance = null;
+    private static readonly object syncRoot = new object();
+
+    public static Singleton Instance 
+    {
+        get 
+        {
+            if (instance == null) 
+            {
+                lock (syncRoot) 
+                {
+                    if (instance == null)
+                        instance = new Singleton();
+                }
+            }
+            return instance;
+        }
+    }
+
+    private Singleton()
+    {
+    }
+}
+```
+>Здесь мы используем объект syncRoot для блокировки доступа к созданию экземпляра Singleton. Также используется проверка на null два раза с использованием блокировки с помощью lock. Это предотвращает создание нескольких экземпляров Singleton при использовании нескольких потоков.
+</details>
+ 
