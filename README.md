@@ -608,7 +608,7 @@ class DeadlockExample
 >
 </details>
 
-<details><summary>Многопоточность Вопрос 8. Что такое Race Condition.</summary>
+<details><summary>Многопоточность Вопрос 9. Что такое Race Condition.</summary>
 
 >Ниже приведен пример упрощенного Race Condition на C#:
 ```csharp
@@ -646,7 +646,7 @@ class Program
 >
 </details>
 
-<details><summary>Многопоточность Вопрос 9. Как реализовать паттерн Singleton для многопоточного использования.</summary>
+<details><summary>Многопоточность Вопрос 10. Как реализовать паттерн Singleton для многопоточного использования.</summary>
  
  >Если требуется дополнительно обеспечить потокобезопасность в паттерне Singleton, можно использовать блокировку (lock) при создании экземпляра:
 ```csharp
