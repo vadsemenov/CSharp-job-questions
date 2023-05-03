@@ -353,7 +353,7 @@
 >
 </details>
 
-<details><summary>ООП Вопрос 5. Для нужно ключевое слово sealed.</summary>
+<details><summary>ООП Вопрос 5. Для чего нужно ключевое слово sealed.</summary>
 
 >
 >
