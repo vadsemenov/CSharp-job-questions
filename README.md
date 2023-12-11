@@ -337,7 +337,140 @@
 
 <details><summary>ООП Вопрос 2. Виды отношений между классами (Агрегация, Композиция, Ассоциативность).</summary>
 
+>В C# существуют три основных вида отношений между классами:
 >
+>1. Агрегация (Aggregation) - это отношение, при котором один класс является частью другого класса, но может существовать независимо от него. То есть, объект одного класса составляет часть объекта другого класса. Примером может служить отношение между классами "Университет" и "Факультеты" - факультеты являются частью университета, но могут существовать и независимо.
+>
+>2. Композиция (Composition) - это более строгое отношение, чем агрегация, при котором один класс является частью другого класса и не может существовать без него. То есть, объект одного класса является составной частью объекта другого класса и уничтожается, когда тот уничтожается. Примером может служить отношение между классами "Человек" и "Органы" - органы составляют часть человека и не могут существовать отдельно от него.
+>
+>3. Ассоциативность (Association) - это отношение, при котором два класса связаны друг с другом, но не являются ни частью друг друга, ни неотъемлемыми. Примером может служить отношение между классами "Покупатель" и "Товар" - покупатель может покупать товары, но он не является их частью и не зависит от них.
+>
+>Примеры кода для отношений между классами (Агрегация, Композиция, Ассоциативность) в C#:
+>
+>1. Агрегация:
+```csharp
+class Classroom
+{
+    private List<Student> students;
+
+    public Classroom()
+    {
+        students = new List<Student>();
+    }
+
+    public void AddStudent(Student student)
+    {
+        students.Add(student);
+    }
+}
+
+class Student
+{
+    private string name;
+
+    public Student(string name)
+    {
+        this.name = name;
+    }
+}
+
+// Пример использования
+class Program
+{
+    static void Main(string[] args)
+    {
+        Classroom classroom = new Classroom();
+        Student student1 = new Student("John");
+        Student student2 = new Student("Emma");
+
+        classroom.AddStudent(student1);
+        classroom.AddStudent(student2);
+    }
+}
+```
+>
+>2. Композиция:
+```csharp
+class Engine
+{
+    public void Start()
+    {
+        Console.WriteLine("Engine started");
+    }
+}
+
+class Car
+{
+    private Engine engine;
+
+    public Car()
+    {
+        engine = new Engine();
+    }
+
+    public void StartEngine()
+    {
+        engine.Start();
+    }
+}
+
+// Пример использования
+class Program
+{
+    static void Main(string[] args)
+    {
+        Car car = new Car();
+        car.StartEngine();
+    }
+}
+```
+>
+>3. Ассоциативность:
+```csharp
+class User
+{
+    private List<Message> messages;
+
+    public User()
+    {
+        messages = new List<Message>();
+    }
+
+    public void SendMessage(User recipient, string content)
+    {
+        Message message = new Message(content);
+        messages.Add(message);
+        recipient.ReceiveMessage(message);
+    }
+
+    public void ReceiveMessage(Message message)
+    {
+        messages.Add(message);
+    }
+}
+
+class Message
+{
+    private string content;
+
+    public Message(string content)
+    {
+        this.content = content;
+    }
+}
+
+// Пример использования
+class Program
+{
+    static void Main(string[] args)
+    {
+        User user1 = new User();
+        User user2 = new User();
+
+        user1.SendMessage(user2, "Hello!");
+    }
+}
+```
 >
 </details>
 
