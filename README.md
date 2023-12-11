@@ -564,10 +564,246 @@ public class EmailService
     }
 }
 ```
+>В этом примере изначально класс User выполнял несколько функций -сохранение в базу данных и отправка Email, после исправления каждая задача вынесена в отдельный сервис.
 >
 >- Пример - Принцип открытости/закрытости (Open/Closed Principle, OCP):
+>Применение принципа:
+```csharp
+using System;
 
+// Абстрактный класс, представляющий товар
+public abstract class Product
+{
+    public string Name { get; set; }
+    public decimal Price { get; set; }
 
+    // Метод расчета скидки, который будет переопределен в каждом конкретном товаре
+    public abstract decimal CalculateDiscount();
+}
+
+// Конкретный класс товара - книга
+public class Book : Product
+{
+    public override decimal CalculateDiscount()
+    {
+        // Расчет скидки для книги
+        return Price * 0.1m; // 10% скидка
+    }
+}
+
+// Конкретный класс товара - электронное устройство
+public class Electronic : Product
+{
+    public override decimal CalculateDiscount()
+    {
+        // Расчет скидки для электронного устройства
+        return Price * 0.05m; // 5% скидка
+    }
+}
+
+// Класс, представляющий корзину с товарами
+public class ShoppingCart
+{
+    public decimal CalculateTotalPrice(Product[] products)
+    {
+        decimal totalPrice = 0;
+
+        // Проходит по каждому товару в корзине
+        foreach (var product in products)
+        {
+            // Рассчитывает суммарную цену за товар, применяя скидку (без необходимости изменения кода класса Product)
+            totalPrice += product.Price - product.CalculateDiscount();
+        }
+
+        return totalPrice;
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        // Создаем несколько товаров
+        var book = new Book { Name = "The Catcher in the Rye", Price = 10 };
+        var phone = new Electronic { Name = "iPhone 12", Price = 1000 };
+
+        // Добавляем товары в корзину
+        var shoppingCart = new ShoppingCart();
+        var totalPrice = shoppingCart.CalculateTotalPrice(new Product[] { book, phone });
+
+        Console.WriteLine($"Total price: {totalPrice}$");
+    }
+}
+```
+>В этом примере класс Product является абстрактным базовым классом, определяющим общие свойства и операции для всех видов товаров. Классы Book и Electronic наследуются от Product и реализуют свою собственную логику расчета скидки.
+>
+>Класс ShoppingCart использует полиморфное поведение объектов класса Product, чтобы рассчитать итоговую сумму цены всех товаров в корзине. Это позволяет добавлять новые виды товаров, не изменяя код класса ShoppingCart.
+>
+>- Пример - Принцип подстановки Барбары Лисков (Liskov Substitution Principle, LSP):
+>Применение принципа:
+```csharp
+using System;
+
+class Shape
+{
+    public virtual double CalculateArea()
+    {
+        return 0;
+    }
+}
+
+class Square : Shape
+{
+    public double Side { get; set; }
+
+    public override double CalculateArea()
+    {
+        return Side * Side;
+    }
+}
+
+class Circle : Shape
+{
+    public double Radius { get; set; }
+
+    public override double CalculateArea()
+    {
+        return Math.PI * Radius * Radius;
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        Shape square = new Square() { Side = 5 };
+        Shape circle = new Circle() { Radius = 3 };
+
+        Console.WriteLine("Площадь квадрата: " + square.CalculateArea());
+        Console.WriteLine("Площадь круга: " + circle.CalculateArea());
+    }
+}
+```
+>Пример демонстрирует использование объектов классов "Квадрат" и "Круг" вместо объекта класса "Фигура" в методе Main(). Оба производных класса переопределяют метод CalculateArea(), что позволяет корректно вычислить площадь конкретной фигуры, несмотря на то, что мы используем переменную типа базового класса.
+>
+>- Пример - Принцип разделения интерфейса (Interface Segregation Principle, ISP):
+>Применение принципа:
+```csharp
+// Интерфейс, описывающий функционал летающего объекта
+public interface IFlyable
+{
+    void Fly();
+}
+
+// Интерфейс, описывающий функционал плавающего объекта
+public interface ISwimmable
+{
+    void Swim();
+}
+
+// Класс, представляющий утку, который может летать и плавать
+public class Duck : IFlyable, ISwimmable
+{
+    public void Fly()
+    {
+        Console.WriteLine("Duck is flying");
+    }
+
+    public void Swim()
+    {
+        Console.WriteLine("Duck is swimming");
+    }
+}
+
+// Класс, представляющий самолет
+public class Airplane : IFlyable
+{
+    public void Fly()
+    {
+        Console.WriteLine("Airplane is flying");
+    }
+}
+
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        Duck duck = new Duck();
+        duck.Fly();
+        duck.Swim();
+
+        Airplane airplane = new Airplane();
+        airplane.Fly();
+    }
+}
+```
+>В данном примере утка реализует оба интерфейса IFlyable и ISwimmable, поскольку она способна и летать, и плавать. В то же время, самолет реализует только интерфейс IFlyable, поскольку он не может плавать.
+>
+>- Пример - Принцип инверсии зависимостей (Dependency Inversion Principle, DIP):
+>Применение принципа:
+```csharp
+// Интерфейс, представляющий абстракцию
+public interface ICar
+{
+    void Drive();
+}
+
+// Высокоуровневый модуль - класс CarService, который зависит от абстракции ICar
+public class CarService
+{
+    private ICar _car;
+
+    public CarService(ICar car)
+    {
+        _car = car;
+    }
+
+    public void Repair()
+    {
+        // Логика ремонта автомобиля
+        _car.Drive();
+    }
+}
+
+// Низкоуровневый модуль - класс Audi, который реализует абстракцию ICar
+public class Audi : ICar
+{
+    public void Drive()
+    {
+        Console.WriteLine("Driving an Audi");
+    }
+}
+
+// Низкоуровневый модуль - класс BMW, который также реализует абстракцию ICar
+public class BMW : ICar
+{
+    public void Drive()
+    {
+        Console.WriteLine("Driving a BMW");
+    }
+}
+
+// Пример использования
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        // Создаем объекты с низким уровнем абстракции
+        ICar audiCar = new Audi();
+        ICar bmwCar = new BMW();
+
+        // Высокоуровневый модуль зависит от абстракций
+        CarService carService1 = new CarService(audiCar);
+        CarService carService2 = new CarService(bmwCar);
+
+        // Вызываем логику ремонта
+        carService1.Repair();
+        carService2.Repair();
+    }
+}
+```
+>В данном примере принцип DIP реализован путем создания абстракции ICar, от которой зависят как высокоуровневые модули (класс CarService), так и низкоуровневые модули (классы Audi и BMW). Это позволяет высокоуровневым модулям работать с различными реализациями низкоуровневых модулей без необходимости изменения своего кода.
+>
 >Эти принципы помогают разработчикам создавать более гибкий, расширяемый и поддерживаемый код, который легче поддается изменениям и обновлениям.
 >
 </details>
